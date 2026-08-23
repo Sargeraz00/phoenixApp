@@ -1,0 +1,46 @@
+# --- Sistema operativo ---
+.DS_Store
+Thumbs.db
+
+# --- IntelliJ / Android Studio ---
+*.iml
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries
+.idea/**/shelf
+.idea/**/httpRequests
+.idea/caches
+.idea/libraries
+
+# --- Build y cache de Gradle/Android ---
+.gradle
+**/build/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# --- Configuración local de máquina ---
+local.properties
+
+# --- Archivos sensibles / secretos ---
+*.jks
+*.keystore
+*.p12
+*.pem
+*.key
+*.der
+keystore.properties
+secrets.properties
+signing.properties
+.env
+.env.*
+google-services.json
+app/google-services.json
+service-account*.json
+firebase-adminsdk*.json
+
+# --- Logs y reportes locales ---
+*.log
+hs_err_pid*
+replay_pid*
