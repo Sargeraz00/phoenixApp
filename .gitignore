@@ -22,6 +22,7 @@ captures/
 
 # --- Configuración local de máquina ---
 local.properties
+.junie/
 
 # --- Archivos sensibles / secretos ---
 *.jks

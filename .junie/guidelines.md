@@ -208,14 +208,14 @@ class LoginViewModel : ViewModel() {
 Reglas obligatorias:
 - Un solo propósito por caso de uso.
 - Exponer `operator fun invoke(...)`.
-- Retornar `Result<T>` o tipo de error de dominio.
+- Retornar `AppResult<T, AppError>`.
 
 Ejemplo correcto:
 ```kotlin
 class LoginUseCase(
     private val repository: AuthRepository
 ) {
-    suspend operator fun invoke(email: String, password: String): Result<User> {
+    suspend operator fun invoke(email: String, password: String): AppResult<User, AppError> {
         return repository.login(email, password)
     }
 }
@@ -241,7 +241,7 @@ Ejemplo correcto:
 ```kotlin
 // domain
 interface AuthRepository {
-    suspend fun login(email: String, password: String): Result<User>
+    suspend fun login(email: String, password: String): AppResult<User, AppError>
 }
 
 // data
@@ -249,7 +249,7 @@ class AuthRepositoryImpl(
     private val remote: AuthRemoteDataSource,
     private val local: AuthLocalDataSource
 ) : AuthRepository {
-    override suspend fun login(email: String, password: String): Result<User> {
+    override suspend fun login(email: String, password: String): AppResult<User, AppError> {
         return remote.login(email, password)
     }
 }
@@ -259,7 +259,7 @@ class AuthRepositoryImpl(
 
 Reglas obligatorias:
 - En capas superiores (`ui`/`domain`) está prohibido usar excepciones para control de flujo.
-- Usar `Result<T>` o `sealed interface AppError`.
+- Usar `AppResult<T, AppError>` y `sealed interface AppError`.
 - Captura de excepciones solo en `data` (boundary con SDK/red/db) y mapear a errores de dominio.
 
 Ejemplo correcto:
@@ -270,7 +270,10 @@ sealed interface AppError {
     data object Unknown : AppError
 }
 
-typealias AppResult<T> = Result<T>
+sealed interface AppResult<out T, out E : AppError> {
+    data class Success<out T>(val data: T) : AppResult<T, Nothing>
+    data class Error<out E : AppError>(val error: E) : AppResult<Nothing, E>
+}
 
 fun Throwable.toAppError(): AppError = when (this) {
     is IllegalStateException -> AppError.Unauthorized
@@ -542,6 +545,8 @@ private fun LoginContentPreview() {
 
 Reglas obligatorias:
 - Strings, colores y dimensiones compartidos van en `commonMain` (módulos compartidos de recursos/tema).
+- Librería oficial de recursos compartidos: `Compose Multiplatform Resources` (acceso mediante objeto `Res`).
+- No usar librerías de terceros para recursos compartidos (ej. `MOKO resources`) salvo aprobación explícita en este documento.
 - Prohibido duplicar literales de UI en múltiples features.
 
 Ejemplo correcto:
@@ -682,6 +687,136 @@ Contraejemplo (NO hacer):
 // mapper exclusivo de auth colocado en commons sin reutilización real
 package com.sargedev.phoenixapp.commons.mappers
 ```
+
+---
+
+## 7) Arquitectura base por features del producto
+
+### 7.1 Features iniciales obligatorias
+
+Reglas obligatorias:
+- La estructura oficial se define como `features/<nombre>/...`.
+- Features iniciales del producto:
+  - `features/auth`: login Google/correo, creación de usuario en Firestore y ruteo inicial por rol.
+  - `features/access_qr`: generación/validación TOTP offline y escaneo QR para validación.
+  - `features/users_profile`: membresía, cuentas familiares, registro de pagos y cambios de rol por admin.
+  - `features/classes_attendance`: activación de clases, confirmación de asistencia y almacenamiento local/sync.
+  - `features/routines`: listado (Alumno) y creación (Maestro) de rutinas.
+  - `features/dashboard_admin`: métricas, gráficas y envío de notificaciones push masivas.
+- Se prohíbe usar rutas alternativas como `feature/<nombre>` o mezclar `login` y `auth` para la misma feature.
+
+### 7.2 Regla inquebrantable de dependencias
+
+Reglas obligatorias:
+- Flujo único permitido: `ui -> domain -> data`.
+- `domain` y `ui` no pueden importar SDKs de red, Firebase ni SQLDelight.
+- Toda referencia a Firebase debe quedar encapsulada en `data`.
+
+---
+
+## 8) Seguridad de roles y backend
+
+### 8.1 Bootstrap de Súper Admin
+
+Reglas obligatorias:
+- El primer usuario con rol `ADMIN` no se crea desde la app.
+- El bootstrap de `ADMIN` se realiza manualmente desde consola segura de Firebase y debe quedar documentado en runbook interno.
+
+### 8.2 Promoción de roles segura
+
+Reglas obligatorias:
+- La UI usa interacción `Hold-to-Confirm` de 3 segundos como protección UX.
+- La autorización real se valida en backend (Cloud Function/Custom Claims/Reglas).
+- El cliente no puede escribir directamente el campo `role`.
+
+### 8.3 Reglas de Firestore por campo
+
+Reglas obligatorias:
+- `role`: solo escribible por backend.
+- `nextPaymentDate`: escribible solo por `ADMIN`.
+- `attendances`: modo append-only para `MAESTRO` (crear sí, editar/borrar no).
+- Toda promoción de rol debe generar auditoría en `audit_logs` (quién, a quién, cuándo).
+
+---
+
+## 9) TOTP y sincronización offline-first
+
+### 9.1 Estrategia de tiempo para TOTP
+
+Reglas obligatorias:
+- Confiar en tiempo de servidor y no en reloj local puro del dispositivo.
+- Guardar offset de tiempo en login y usarlo para corrección offline.
+- Ventana de validación: `±1` paso respecto a la ventana actual.
+- Nunca registrar en logs la semilla TOTP.
+
+### 9.2 Sincronización de asistencias
+
+Reglas obligatorias:
+- Modelo append-only con eventos inmutables.
+- Al capturar offline, asignar `UUID` local inmediato y reutilizarlo como ID de documento al sincronizar.
+- Si se reintenta, el mismo `UUID` debe sobrescribir el mismo documento (idempotencia).
+- Registros sincronizados fuera de ventana se aceptan por `timestamp` original y se marcan con `delayed_sync = true`.
+- Reintentos de sync con `Exponential Backoff`.
+
+---
+
+## 10) Stack y targets oficiales del MVP
+
+Reglas obligatorias:
+- Targets MVP: `Android` + `iOS`.
+- `Desktop/Web` quedan fuera del alcance MVP inicial.
+- Gestión centralizada de dependencias obligatoria mediante Version Catalog en `gradle/libs.versions.toml`.
+- DI oficial: `Koin` modular (`appModule`, `networkModule`, módulos por feature).
+- Red oficial: `Ktor` + `kotlinx.serialization`.
+- Persistencia local oficial: `SQLDelight`.
+- Firebase en código compartido: `GitLive Firebase SDK`.
+- Estado de UI KMP: `androidx.lifecycle:lifecycle-viewmodel`.
+
+### 10.1 Expect/Actual para autenticación nativa
+
+Reglas obligatorias:
+- Definir contrato común `expect` para autenticación Google.
+- Implementaciones `actual` por plataforma:
+  - Android: `play-services-auth` o Credential Manager.
+  - iOS: integración nativa de Google Sign-In vía SPM.
+
+---
+
+## 11) Observabilidad y logs
+
+Reglas obligatorias:
+- Librería de logging unificada: `Kermit`.
+- Inyectar `correlationId` (UUID) en flujos críticos (`loginAttemptId`, `syncSessionId`, etc.).
+- Sanitización obligatoria de logs (emails/token/PII enmascarados).
+
+---
+
+## 12) Manejo de secretos
+
+Reglas obligatorias:
+- Secretos fuera de control de versiones.
+- Inyección en build mediante `BuildKonfig` o estrategia equivalente basada en propiedades locales/CI.
+- Separación explícita por entorno (`dev`, `stage`, `prod`).
+
+---
+
+## 13) Calidad y CI obligatoria
+
+Reglas obligatorias:
+- Toda PR debe ejecutar como mínimo:
+  1. `ktlintCheck`
+  2. `detekt`
+  3. `testDebugUnitTest`
+  4. `assembleDebug`
+- Si falla cualquier gate, la PR no puede mergearse.
+- Se recomienda pipeline dinámico por cambios para optimizar tiempos, sin omitir gates obligatorios del módulo afectado.
+
+### 13.1 Pruebas unitarias multiplataforma (commonMain)
+
+Reglas obligatorias:
+- Las pruebas unitarias de `domain` en `commonMain` deben escribirse con `kotlin.test`.
+- Evitar `JUnit` directo en `commonMain`; usarlo solo en source sets específicos de plataforma cuando aplique.
+- Las pruebas de `commonMain` deben poder ejecutarse y validarse en todos los targets oficiales del MVP (`Android` e `iOS`).
 
 ---
 
