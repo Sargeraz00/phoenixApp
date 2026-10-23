@@ -137,7 +137,7 @@ fun LoginContent(
 
                     // Google Login Button with original Google icon
                     Button(
-                        onClick = { onAction(LoginAction.SubmitGoogleLogin) },
+                        onClick = { onAction(LoginAction.SubmitGoogleLogin("")) },
                         enabled = !state.isLoading,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.White,

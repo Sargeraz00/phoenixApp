@@ -1,5 +1,6 @@
 package com.sargedev.phoenixapp.features.auth.ui.viewmodel
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -23,17 +24,8 @@ class LoginViewModel(
 
     fun onAction(action: LoginAction) {
         when (action) {
-            is LoginAction.EmailChanged -> {
-                state = state.copy(email = action.value, errorMessage = null)
-            }
-            is LoginAction.PasswordChanged -> {
-                state = state.copy(password = action.value, errorMessage = null)
-            }
-            LoginAction.SubmitEmailLogin -> {
-                submitEmailLogin()
-            }
-            LoginAction.SubmitGoogleLogin -> {
-                submitGoogleLogin()
+            is LoginAction.SubmitGoogleLogin -> {
+                submitGoogleLogin(action.idToken)
             }
             LoginAction.DismissError -> {
                 state = state.copy(errorMessage = null)
@@ -41,50 +33,26 @@ class LoginViewModel(
         }
     }
 
-    private fun submitEmailLogin() {
-        val email = state.email.trim()
-        val password = state.password
-        if (email.isBlank() || password.isBlank()) {
-            state = state.copy(errorMessage = "Por favor ingresa correo y contraseña.")
-            return
-        }
-
+    private fun submitGoogleLogin(idToken: String) {
         viewModelScope.launch {
             state = state.copy(isLoading = true, errorMessage = null)
             try {
-                val result = authRepository.loginWithEmail(email, password)
-                state = state.copy(
-                    isLoading = false,
-                    isLoginSuccess = true,
-                    isNewUser = result.isNewUser,
-                    userName = result.user.name
-                )
-                _eventChannel.send(LoginEvent.NavigateToHome)
+                Log.d("AuthDebug", "Submitting Google login to repository...")
+                val result = authRepository.loginWithGoogle(idToken)
+                Log.d("AuthDebug", "LoginResult received: isFirstLogin=${result.isFirstLogin}, email=${result.email}, uid=${result.uid}")
+                state = state.copy(isLoading = false, isLoginSuccess = true)
+                if (result.isFirstLogin) {
+                    Log.d("AuthDebug", "Navigating to Form (isFirstLogin = true)")
+                    _eventChannel.send(LoginEvent.NavigateToForm)
+                } else {
+                    Log.d("AuthDebug", "Navigating to Home (isFirstLogin = false)")
+                    _eventChannel.send(LoginEvent.NavigateToHome)
+                }
             } catch (e: Exception) {
+                Log.e("AuthDebug", "Error in submitGoogleLogin: ${e.message}", e)
                 state = state.copy(
                     isLoading = false,
-                    errorMessage = e.localizedMessage ?: "Error de autenticación"
-                )
-            }
-        }
-    }
-
-    private fun submitGoogleLogin() {
-        viewModelScope.launch {
-            state = state.copy(isLoading = true, errorMessage = null)
-            try {
-                val result = authRepository.loginWithGoogle("mock_google_id_token")
-                state = state.copy(
-                    isLoading = false,
-                    isLoginSuccess = true,
-                    isNewUser = result.isNewUser,
-                    userName = result.user.name
-                )
-                _eventChannel.send(LoginEvent.NavigateToHome)
-            } catch (e: Exception) {
-                state = state.copy(
-                    isLoading = false,
-                    errorMessage = e.localizedMessage ?: "Error con Google Sign-In"
+                    errorMessage = e.localizedMessage ?: "Error al autenticar con Google"
                 )
             }
         }

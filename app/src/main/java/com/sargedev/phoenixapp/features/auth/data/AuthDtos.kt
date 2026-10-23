@@ -1,29 +1,28 @@
 package com.sargedev.phoenixapp.features.auth.data
 
-data class UserDto(
-    val id: String,
-    val name: String,
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class GoogleLoginRequestDto(
+    val idToken: String
+)
+
+@Serializable
+data class UserDataDto(
+    val uid: String,
     val email: String,
+    val name: String,
     val role: String,
-    val status: String
+    val status: String,
+    val isFirstLogin: Boolean,
+    val photoUrl: String? = null
 )
 
-data class TokensDto(
-    val accessToken: String,
-    val refreshToken: String
-)
-
-data class AuthResponseDto(
+@Serializable
+data class GoogleLoginResponseDto(
     val status: String,
     val responseCode: String,
     val message: String,
     val correlationId: String,
-    val data: AuthDataDto
-)
-
-data class AuthDataDto(
-    val isNewUser: Boolean,
-    val timeOffsetMs: Long,
-    val user: UserDto,
-    val tokens: TokensDto
+    val data: UserDataDto
 )

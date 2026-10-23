@@ -4,16 +4,14 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sargedev.phoenixapp.features.auth.ui.screen.LoginScreen
@@ -33,32 +31,89 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+sealed interface AppDestination {
+    data object Splash : AppDestination
+    data object Login : AppDestination
+    data object Form : AppDestination
+    data object Home : AppDestination
+}
+
 @Composable
 fun PhoenixAppApp() {
-    var currentScreen by rememberSaveable { mutableStateOf("splash") }
+    var currentDestination by remember { mutableStateOf<AppDestination>(AppDestination.Splash) }
 
     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-        Crossfade(
-            targetState = currentScreen,
-            modifier = Modifier.padding(innerPadding),
-            label = "ScreenTransition"
-        ) { screen ->
-            when (screen) {
-                "splash" -> {
-                    SplashScreen(
-                        onNavigateToLogin = { currentScreen = "login" }
-                    )
-                }
-                "login" -> {
-                    LoginScreen(
-                        onNavigateToHome = { currentScreen = "home" }
-                    )
-                }
-                "home" -> {
-                    HomeStubScreen(
-                        onLogout = { currentScreen = "splash" }
-                    )
-                }
+        when (currentDestination) {
+            AppDestination.Splash -> {
+                SplashScreen(
+                    onNavigateToLogin = { currentDestination = AppDestination.Login },
+                    modifier = Modifier.padding(innerPadding)
+                )
+            }
+            AppDestination.Login -> {
+                LoginScreen(
+                    onNavigateToForm = { currentDestination = AppDestination.Form },
+                    onNavigateToHome = { currentDestination = AppDestination.Home },
+                    modifier = Modifier.padding(innerPadding)
+                )
+            }
+            AppDestination.Form -> {
+                FormStubScreen(
+                    onBack = { currentDestination = AppDestination.Login },
+                    modifier = Modifier.padding(innerPadding)
+                )
+            }
+            AppDestination.Home -> {
+                HomeStubScreen(
+                    onLogout = { currentDestination = AppDestination.Splash },
+                    modifier = Modifier.padding(innerPadding)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun FormStubScreen(
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color(0xFF1F0F0C)),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(24.dp)
+        ) {
+            Text(
+                text = "form",
+                style = TextStyle(
+                    fontFamily = BebasNeueFontFamily,
+                    fontSize = 48.sp,
+                    color = Color(0xFFFBDCD5),
+                    letterSpacing = 2.sp
+                )
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "Primera vez iniciando sesión (isFirstLogin: true)",
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    color = Color(0xFFFFB4A5)
+                )
+            )
+            Spacer(modifier = Modifier.height(32.dp))
+            Button(
+                onClick = onBack,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFFFB4A5),
+                    contentColor = Color(0xFF1F0F0C)
+                )
+            ) {
+                Text("Volver")
             }
         }
     }
@@ -72,7 +127,7 @@ fun HomeStubScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+            .background(Color(0xFF1F0F0C)),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -80,29 +135,28 @@ fun HomeStubScreen(
             modifier = Modifier.padding(24.dp)
         ) {
             Text(
-                text = "¡LOGIN EXITOSO!",
+                text = "home",
                 style = TextStyle(
                     fontFamily = BebasNeueFontFamily,
-                    fontSize = 40.sp,
-                    color = MaterialTheme.colorScheme.primary,
+                    fontSize = 48.sp,
+                    color = Color(0xFFFBDCD5),
                     letterSpacing = 2.sp
                 )
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "Phoenix Boxing Academy — MVP Local",
+                text = "Inicio de sesión existente (isFirstLogin: false)",
                 style = TextStyle(
-                    fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.Medium
+                    fontSize = 14.sp,
+                    color = Color(0xFFFFB4A5)
                 )
             )
             Spacer(modifier = Modifier.height(32.dp))
             Button(
                 onClick = onLogout,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
+                    containerColor = Color(0xFFFFB4A5),
+                    contentColor = Color(0xFF1F0F0C)
                 )
             ) {
                 Text("CERRAR SESIÓN")
