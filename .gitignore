@@ -45,3 +45,9 @@ firebase-adminsdk*.json
 *.log
 hs_err_pid*
 replay_pid*
+
+#Docs
+API_CONTRACT_MVP_V1.md
+ENTREGABLES_MVP.md
+ENTREGABLES_MVP_BACKEND_FIRST.md
+guidelines.md

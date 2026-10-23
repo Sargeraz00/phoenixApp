@@ -11,33 +11,20 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
-)
-
-private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+private val PhoenixColorScheme = darkColorScheme(
+    primary = PhoenixPeach,
+    secondary = PhoenixGold,
+    background = PhoenixBackground,
+    surface = PhoenixCardBackground,
+    onPrimary = DarkBrown,
+    onBackground = PhoenixPeach,
+    onSurface = PhoenixTextSub
 )
 
 @Composable
 fun PhoenixAppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false, // Use our custom Phoenix theme palette by default for exact Figma color fidelity
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -45,9 +32,7 @@ fun PhoenixAppTheme(
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+        else -> PhoenixColorScheme
     }
 
     MaterialTheme(
