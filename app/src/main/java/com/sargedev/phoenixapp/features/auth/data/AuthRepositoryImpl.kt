@@ -2,9 +2,10 @@ package com.sargedev.phoenixapp.features.auth.data
 
 import com.sargedev.phoenixapp.features.auth.domain.AuthRepository
 import com.sargedev.phoenixapp.features.auth.domain.LoginResult
+import javax.inject.Inject
 
-class AuthRepositoryImpl(
-    private val remoteDataSource: AuthRemoteDataSource = AuthRemoteDataSource()
+class AuthRepositoryImpl @Inject constructor(
+    private val remoteDataSource: AuthRemoteDataSource
 ) : AuthRepository {
     override suspend fun loginWithGoogle(idToken: String): LoginResult {
         val response = remoteDataSource.loginWithGoogle(idToken)

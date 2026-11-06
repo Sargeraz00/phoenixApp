@@ -6,14 +6,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sargedev.phoenixapp.features.auth.data.AuthRepositoryImpl
+import com.sargedev.phoenixapp.core.session.UserSession
 import com.sargedev.phoenixapp.features.auth.domain.AuthRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class LoginViewModel(
-    private val authRepository: AuthRepository = AuthRepositoryImpl()
+@HiltViewModel
+class LoginViewModel @Inject constructor(
+    private val authRepository: AuthRepository,
+    private val userSession: UserSession
 ) : ViewModel() {
 
     var state by mutableStateOf(LoginUiState())
@@ -40,6 +44,10 @@ class LoginViewModel(
                 Log.d("AuthDebug", "Submitting Google login to repository...")
                 val result = authRepository.loginWithGoogle(idToken)
                 Log.d("AuthDebug", "LoginResult received: isFirstLogin=${result.isFirstLogin}, email=${result.email}, uid=${result.uid}")
+
+                userSession.userId = result.uid
+                Log.d("AuthDebug", "UserSession userId saved: ${result.uid}")
+
                 state = state.copy(isLoading = false, isLoginSuccess = true)
                 if (result.isFirstLogin || result.status.equals("PENDING_PROFILE", ignoreCase = true)) {
                     Log.d("AuthDebug", "Navigating to Form (isFirstLogin = ${result.isFirstLogin}, status = ${result.status})")

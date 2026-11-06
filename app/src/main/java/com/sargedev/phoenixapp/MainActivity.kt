@@ -19,7 +19,9 @@ import com.sargedev.phoenixapp.features.profile.ui.screen.CompleteProfile
 import com.sargedev.phoenixapp.features.splash.ui.screen.SplashScreen
 import com.sargedev.phoenixapp.core.ui.theme.BebasNeueFontFamily
 import com.sargedev.phoenixapp.core.ui.theme.PhoenixAppTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

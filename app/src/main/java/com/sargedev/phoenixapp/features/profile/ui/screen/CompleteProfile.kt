@@ -1,5 +1,6 @@
 package com.sargedev.phoenixapp.features.profile.ui.screen
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -13,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
@@ -28,7 +30,9 @@ import com.sargedev.phoenixapp.core.components.textfield.AppTextField
 import com.sargedev.phoenixapp.core.components.textfield.DateVisualTransformation
 import com.sargedev.phoenixapp.core.components.textfield.PhoneVisualTransformation
 import com.sargedev.phoenixapp.core.ui.theme.*
+import com.sargedev.phoenixapp.features.profile.ui.viewmodel.CompleteProfileEvent
 import com.sargedev.phoenixapp.features.profile.ui.viewmodel.CompleteProfileViewModel
+import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,15 +42,27 @@ fun CompleteProfile(
     viewModel: CompleteProfileViewModel = viewModel()
 ) {
     val state = viewModel.state
+    val context = LocalContext.current
     val scrollState = rememberScrollState()
 
     var planExpanded by remember { mutableStateOf(false) }
     val gymPlans = listOf(
-        "Plan Básico - $499 / mes",
-        "Plan Pro - $899 / mes",
-        "Plan VIP Anual - $7,999 / año",
-        "Plan Estudiante - $399 / mes"
+        "Plan Básico - $499 / mes" to "plan_basico",
+        "Plan Pro - $899 / mes" to "plan_pro",
+        "Plan VIP Anual - $7,999 / año" to "plan_vip",
+        "Plan Estudiante - $399 / mes" to "plan_estudiante"
     )
+
+    LaunchedEffect(key1 = true) {
+        viewModel.eventFlow.collectLatest { event ->
+            when (event) {
+                is CompleteProfileEvent.NavigateToHome -> onActivateSuccess()
+                is CompleteProfileEvent.ShowError -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
 
     AppScaffold(
         title = "PHOENIX",
@@ -98,10 +114,10 @@ fun CompleteProfile(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         AppTextField(
-                            value = state.plan,
+                            value = state.planId,
                             onValueChange = {},
                             label = "Plan inicial",
-                            placeholder = "Mensual · $800MXN",
+                            placeholder = "Selecciona tu plan",
                             readOnly = true,
                             leadingIconRes = R.drawable.icon_streak,
                             trailingIcon = {
@@ -118,11 +134,11 @@ fun CompleteProfile(
                             onDismissRequest = { planExpanded = false },
                             modifier = Modifier.background(InputBackground)
                         ) {
-                            gymPlans.forEach { plan ->
+                            gymPlans.forEach { (displayName, id) ->
                                 DropdownMenuItem(
-                                    text = { Text(text = plan, color = SoftPink) },
+                                    text = { Text(text = displayName, color = SoftPink) },
                                     onClick = {
-                                        viewModel.onPlanChanged(plan)
+                                        viewModel.onPlanChanged(id)
                                         planExpanded = false
                                     }
                                 )
@@ -182,7 +198,7 @@ fun CompleteProfile(
 
                     // Condiciones preexistentes (long text box)
                     AppTextField(
-                        value = state.preexistingConditions,
+                        value = state.preconditions,
                         onValueChange = { viewModel.onPreexistingConditionsChanged(it) },
                         label = "Condiciones preexistentes",
                         placeholder = "Escribe aquí si tienes alguna condición...",
@@ -193,13 +209,13 @@ fun CompleteProfile(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // Button INSIDE the box: ACTIVAR MEMBRESIA (using default linear gradient)
+                    // Button INSIDE the box: ACTIVAR MEMBRESIA
                     AppButton(
-                        text = "ACTIVAR MEMBRESIA",
+                        text = if (state.isLoading) "ACTIVANDO..." else "ACTIVAR MEMBRESIA",
                         onClick = {
                             viewModel.submitProfile()
-                            onActivateSuccess()
                         },
+                        enabled = !state.isLoading,
                         textColor = PhoenixPeach,
                         iconRes = R.drawable.ic_rocket,
                         iconPosition = IconPosition.RIGHT
@@ -209,7 +225,7 @@ fun CompleteProfile(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // OUTSIDE the box: ¿Eres Maestro? · Contacta a recepción (#FFB4A5 color)
+            // OUTSIDE the box: ¿Eres Maestro? · Contacta a recepción
             Text(
                 text = "¿Eres Maestro? · Contacta a recepción",
                 style = TextStyle(
@@ -221,7 +237,7 @@ fun CompleteProfile(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Bottom feature highlights / badges (ic_secure, ic_Fast, ic_badge_verified) with SoftPink (#FBDCD5) text and icons
+            // Bottom feature highlights / badges
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly,
@@ -252,7 +268,7 @@ fun FeatureBadge(
     iconRes: Int,
     text: String,
     modifier: Modifier = Modifier,
-    tint : Color
+    tint: Color
 ) {
     Row(
         modifier = modifier,
