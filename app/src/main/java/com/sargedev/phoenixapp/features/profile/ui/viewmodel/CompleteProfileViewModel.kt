@@ -7,6 +7,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sargedev.phoenixapp.core.session.UserSession
+import com.sargedev.phoenixapp.features.plans.domain.model.GymPlan
+import com.sargedev.phoenixapp.features.plans.domain.usecase.GetPlansUseCase
 import com.sargedev.phoenixapp.features.profile.domain.Profile
 import com.sargedev.phoenixapp.features.profile.domain.usecase.CompleteProfileUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,6 +24,7 @@ data class CompleteProfileUiState(
     val preconditions: String = "",
     val planId: String = "",
     val selectedPlanName: String = "",
+    val availablePlans: List<GymPlan> = emptyList(),
     val isLoading: Boolean = false,
     val errorMessage: String? = null
 )
@@ -34,6 +37,7 @@ sealed interface CompleteProfileEvent {
 @HiltViewModel
 class CompleteProfileViewModel @Inject constructor(
     private val completeProfileUseCase: CompleteProfileUseCase,
+    private val getPlansUseCase: GetPlansUseCase,
     private val userSession: UserSession
 ) : ViewModel() {
     var state by mutableStateOf(CompleteProfileUiState())
@@ -41,6 +45,20 @@ class CompleteProfileViewModel @Inject constructor(
 
     private val _eventChannel = Channel<CompleteProfileEvent>()
     val eventFlow = _eventChannel.receiveAsFlow()
+
+    init {
+        loadPlans()
+    }
+
+    private fun loadPlans() {
+        viewModelScope.launch {
+            getPlansUseCase().onSuccess { plans ->
+                state = state.copy(availablePlans = plans)
+            }.onFailure { e ->
+                Log.e("AuthDebug", "Error loading plans: ${e.message}")
+            }
+        }
+    }
 
     fun onPlanSelected(displayName: String, id: String) {
         state = state.copy(selectedPlanName = displayName, planId = id)
@@ -90,8 +108,7 @@ class CompleteProfileViewModel @Inject constructor(
             )
             val result = completeProfileUseCase(profile)
             result.onSuccess {
-                // Reset form state upon successful profile completion
-                state = CompleteProfileUiState()
+                state = CompleteProfileUiState(availablePlans = state.availablePlans)
                 _eventChannel.send(CompleteProfileEvent.NavigateToHome)
             }.onFailure { e ->
                 state = state.copy(isLoading = false)

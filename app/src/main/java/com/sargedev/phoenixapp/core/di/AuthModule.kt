@@ -1,7 +1,7 @@
 package com.sargedev.phoenixapp.core.di
 
-import com.sargedev.phoenixapp.features.auth.data.AuthRepositoryImpl
-import com.sargedev.phoenixapp.features.auth.domain.AuthRepository
+import com.sargedev.phoenixapp.features.auth.data.repository.AuthRepositoryImpl
+import com.sargedev.phoenixapp.features.auth.domain.repository.AuthRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

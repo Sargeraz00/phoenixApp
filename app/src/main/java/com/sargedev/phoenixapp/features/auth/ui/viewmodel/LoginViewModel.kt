@@ -7,7 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sargedev.phoenixapp.core.session.UserSession
-import com.sargedev.phoenixapp.features.auth.domain.AuthRepository
+import com.sargedev.phoenixapp.features.auth.domain.usecase.LoginWithGoogleUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -16,7 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val authRepository: AuthRepository,
+    private val loginWithGoogleUseCase: LoginWithGoogleUseCase,
     private val userSession: UserSession
 ) : ViewModel() {
 
@@ -42,7 +42,7 @@ class LoginViewModel @Inject constructor(
             state = state.copy(isLoading = true, errorMessage = null)
             try {
                 Log.d("AuthDebug", "Submitting Google login to repository...")
-                val result = authRepository.loginWithGoogle(idToken)
+                val result = loginWithGoogleUseCase(idToken)
                 Log.d("AuthDebug", "LoginResult received: isFirstLogin=${result.isFirstLogin}, email=${result.email}, uid=${result.uid}")
 
                 userSession.userId = result.uid

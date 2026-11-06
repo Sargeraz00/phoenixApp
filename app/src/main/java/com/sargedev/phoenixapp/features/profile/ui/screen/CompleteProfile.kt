@@ -45,12 +45,6 @@ fun CompleteProfile(
     val scrollState = rememberScrollState()
 
     var planExpanded by remember { mutableStateOf(false) }
-    val gymPlans = listOf(
-        "Plan Básico - $499 / mes" to "plan_basico",
-        "Plan Pro - $899 / mes" to "plan_pro",
-        "Plan VIP Anual - $7,999 / año" to "plan_vip",
-        "Plan Estudiante - $399 / mes" to "plan_estudiante"
-    )
 
     LaunchedEffect(key1 = true) {
         viewModel.eventFlow.collectLatest { event ->
@@ -133,11 +127,11 @@ fun CompleteProfile(
                             onDismissRequest = { planExpanded = false },
                             modifier = Modifier.background(InputBackground)
                         ) {
-                            gymPlans.forEach { (displayName, id) ->
+                            state.availablePlans.forEach { plan ->
                                 DropdownMenuItem(
-                                    text = { Text(text = displayName, color = SoftPink) },
+                                    text = { Text(text = plan.displayName, color = SoftPink) },
                                     onClick = {
-                                        viewModel.onPlanSelected(displayName, id)
+                                        viewModel.onPlanSelected(plan.displayName, plan.id)
                                         planExpanded = false
                                     }
                                 )
