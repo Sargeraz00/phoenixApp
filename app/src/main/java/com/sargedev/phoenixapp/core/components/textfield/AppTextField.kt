@@ -1,4 +1,4 @@
-package com.sargedev.phoenixapp.core.components.form
+package com.sargedev.phoenixapp.core.components.textfield
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
