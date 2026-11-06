@@ -17,7 +17,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sargedev.phoenixapp.R
-import com.sargedev.phoenixapp.ui.theme.*
+import com.sargedev.phoenixapp.core.ui.theme.BebasNeueFontFamily
+import com.sargedev.phoenixapp.core.ui.theme.PhoenixGlow
+import com.sargedev.phoenixapp.core.ui.theme.PhoenixGradientStop1
+import com.sargedev.phoenixapp.core.ui.theme.PhoenixGradientStop2
+import com.sargedev.phoenixapp.core.ui.theme.PhoenixGradientStop3
+import com.sargedev.phoenixapp.core.ui.theme.PhoenixGradientStop4
+import com.sargedev.phoenixapp.core.ui.theme.PhoenixGradientStop5
+import com.sargedev.phoenixapp.core.ui.theme.PhoenixGradientStop6
 
 @Composable
 fun SplashContent(

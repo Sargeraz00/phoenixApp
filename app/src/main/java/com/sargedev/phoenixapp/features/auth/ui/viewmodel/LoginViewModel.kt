@@ -41,11 +41,11 @@ class LoginViewModel(
                 val result = authRepository.loginWithGoogle(idToken)
                 Log.d("AuthDebug", "LoginResult received: isFirstLogin=${result.isFirstLogin}, email=${result.email}, uid=${result.uid}")
                 state = state.copy(isLoading = false, isLoginSuccess = true)
-                if (result.isFirstLogin) {
-                    Log.d("AuthDebug", "Navigating to Form (isFirstLogin = true)")
+                if (result.isFirstLogin || result.status.equals("PENDING_PROFILE", ignoreCase = true)) {
+                    Log.d("AuthDebug", "Navigating to Form (isFirstLogin = ${result.isFirstLogin}, status = ${result.status})")
                     _eventChannel.send(LoginEvent.NavigateToForm)
                 } else {
-                    Log.d("AuthDebug", "Navigating to Home (isFirstLogin = false)")
+                    Log.d("AuthDebug", "Navigating to Home (isFirstLogin = ${result.isFirstLogin}, status = ${result.status})")
                     _eventChannel.send(LoginEvent.NavigateToHome)
                 }
             } catch (e: Exception) {

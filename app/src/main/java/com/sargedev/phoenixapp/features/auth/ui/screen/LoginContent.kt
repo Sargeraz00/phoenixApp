@@ -20,9 +20,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sargedev.phoenixapp.R
+import com.sargedev.phoenixapp.core.ui.theme.BebasNeueFontFamily
+import com.sargedev.phoenixapp.core.ui.theme.DarkBrown
+import com.sargedev.phoenixapp.core.ui.theme.PhoenixCardBorder
+import com.sargedev.phoenixapp.core.ui.theme.PhoenixGlow
+import com.sargedev.phoenixapp.core.ui.theme.PhoenixGradientStop1
+import com.sargedev.phoenixapp.core.ui.theme.PhoenixGradientStop2
+import com.sargedev.phoenixapp.core.ui.theme.PhoenixGradientStop3
+import com.sargedev.phoenixapp.core.ui.theme.PhoenixGradientStop4
+import com.sargedev.phoenixapp.core.ui.theme.PhoenixGradientStop5
+import com.sargedev.phoenixapp.core.ui.theme.PhoenixGradientStop6
 import com.sargedev.phoenixapp.features.auth.ui.viewmodel.LoginAction
 import com.sargedev.phoenixapp.features.auth.ui.viewmodel.LoginUiState
-import com.sargedev.phoenixapp.ui.theme.*
 
 @Composable
 fun LoginContent(

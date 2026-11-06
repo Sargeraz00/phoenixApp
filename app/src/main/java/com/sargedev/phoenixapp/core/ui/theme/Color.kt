@@ -1,4 +1,4 @@
-package com.sargedev.phoenixapp.ui.theme
+package com.sargedev.phoenixapp.core.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
@@ -20,6 +20,15 @@ val PhoenixGradientStop5 = Color(0xFFE5C158)
 val PhoenixGradientStop6 = Color(0xFF8B4513)
 
 val BackdropOverlay = Color(0x26000000)
+
+// Form & Input Colors
+val InputBackground = Color(0xFF1E1E1E)
+val InputBorder = Color(0xFF2C2C2C)
+val PlaceholderColor = Color(0x80E5BDB6)
+
+// Button Colors & Gradients
+val ButtonGradientStart = Color(0xFFFF4B2B)
+val ButtonGradientEnd = Color(0xFFFF416C)
 
 // Legacy / Utility Colors
 val DarkBrown = Color(0xFF1F0F0C)

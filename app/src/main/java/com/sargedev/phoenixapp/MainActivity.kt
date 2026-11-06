@@ -16,8 +16,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sargedev.phoenixapp.features.auth.ui.screen.LoginScreen
 import com.sargedev.phoenixapp.features.splash.ui.screen.SplashScreen
-import com.sargedev.phoenixapp.ui.theme.BebasNeueFontFamily
-import com.sargedev.phoenixapp.ui.theme.PhoenixAppTheme
+import com.sargedev.phoenixapp.core.ui.theme.BebasNeueFontFamily
+import com.sargedev.phoenixapp.core.ui.theme.PhoenixAppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
