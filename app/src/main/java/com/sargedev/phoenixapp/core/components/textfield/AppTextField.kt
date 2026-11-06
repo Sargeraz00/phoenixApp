@@ -17,13 +17,67 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sargedev.phoenixapp.core.ui.theme.InputBackground
 import com.sargedev.phoenixapp.core.ui.theme.InputBorder
 import com.sargedev.phoenixapp.core.ui.theme.PlaceholderColor
 import com.sargedev.phoenixapp.core.ui.theme.SoftPink
+
+class DateVisualTransformation : VisualTransformation {
+    override fun filter(text: AnnotatedString): TransformedText {
+        val trimmed = text.text.take(8)
+        var out = ""
+        for (i in trimmed.indices) {
+            out += trimmed[i]
+            if (i == 1 || i == 3) {
+                out += "/"
+            }
+        }
+
+        val numberOffsetTranslator = object : OffsetMapping {
+            override fun originalToTransformed(offset: Int): Int {
+                if (offset <= 1) return offset
+                if (offset <= 3) return offset + 1
+                if (offset <= 8) return offset + 2
+                return 10
+            }
+
+            override fun transformedToOriginal(offset: Int): Int {
+                if (offset <= 2) return offset
+                if (offset <= 5) return offset - 1
+                if (offset <= 10) return offset - 2
+                return 8
+            }
+        }
+
+        return TransformedText(AnnotatedString(out), numberOffsetTranslator)
+    }
+}
+
+class PhoneVisualTransformation : VisualTransformation {
+    override fun filter(text: AnnotatedString): TransformedText {
+        val trimmed = text.text.take(10)
+        val out = "+52 $trimmed"
+
+        val numberOffsetTranslator = object : OffsetMapping {
+            override fun originalToTransformed(offset: Int): Int {
+                return offset + 4
+            }
+
+            override fun transformedToOriginal(offset: Int): Int {
+                return (offset - 4).coerceAtLeast(0)
+            }
+        }
+
+        return TransformedText(AnnotatedString(out), numberOffsetTranslator)
+    }
+}
 
 @Composable
 fun AppTextField(
@@ -41,6 +95,7 @@ fun AppTextField(
     readOnly: Boolean = false,
     isError: Boolean = false,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
     singleLine: Boolean = true,
     maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
     minLines: Int = 1,
@@ -118,6 +173,7 @@ fun AppTextField(
                 },
                 isError = isError,
                 keyboardOptions = keyboardOptions,
+                visualTransformation = visualTransformation,
                 singleLine = singleLine,
                 maxLines = maxLines,
                 minLines = minLines,

@@ -25,6 +25,8 @@ import com.sargedev.phoenixapp.core.components.button.AppButton
 import com.sargedev.phoenixapp.core.components.button.IconPosition
 import com.sargedev.phoenixapp.core.components.scaffold.AppScaffold
 import com.sargedev.phoenixapp.core.components.textfield.AppTextField
+import com.sargedev.phoenixapp.core.components.textfield.DateVisualTransformation
+import com.sargedev.phoenixapp.core.components.textfield.PhoneVisualTransformation
 import com.sargedev.phoenixapp.core.ui.theme.*
 import com.sargedev.phoenixapp.features.profile.ui.viewmodel.CompleteProfileViewModel
 
@@ -55,6 +57,8 @@ fun CompleteProfile(
             modifier = innerModifier
                 .fillMaxSize()
                 .background(PhoenixBackground)
+                .imePadding()
+                .navigationBarsPadding()
                 .verticalScroll(scrollState)
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -131,10 +135,14 @@ fun CompleteProfile(
                     // Contacto de emergencia (Phone number)
                     AppTextField(
                         value = state.emergencyContact,
-                        onValueChange = { viewModel.onEmergencyContactChanged(it) },
+                        onValueChange = { newValue ->
+                            val filtered = newValue.filter { it.isDigit() }.take(10)
+                            viewModel.onEmergencyContactChanged(filtered)
+                        },
                         label = "Contacto de emergencia",
-                        placeholder = "+52 000 000 0000",
+                        placeholder = "961 000 0000",
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                        visualTransformation = PhoneVisualTransformation(),
                         leadingIconRes = R.drawable.ic_call
                     )
 
@@ -143,10 +151,14 @@ fun CompleteProfile(
                     // Número telefónico
                     AppTextField(
                         value = state.phoneNumber,
-                        onValueChange = { viewModel.onPhoneNumberChanged(it) },
+                        onValueChange = { newValue ->
+                            val filtered = newValue.filter { it.isDigit() }.take(10)
+                            viewModel.onPhoneNumberChanged(filtered)
+                        },
                         label = "Número telefónico",
-                        placeholder = "+52 000 000 0000",
+                        placeholder = "961 000 0000",
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                        visualTransformation = PhoneVisualTransformation(),
                         leadingIconRes = R.drawable.ic_call
                     )
 
@@ -155,10 +167,15 @@ fun CompleteProfile(
                     // Fecha mm/dd/yyyy
                     AppTextField(
                         value = state.birthDate,
-                        onValueChange = { viewModel.onBirthDateChanged(it) },
+                        onValueChange = { newValue ->
+                            val filtered = newValue.filter { it.isDigit() }.take(8)
+                            viewModel.onBirthDateChanged(filtered)
+                        },
                         label = "Fecha de nacimiento",
                         placeholder = "mm/dd/yyyy",
-                        leadingIconRes = R.drawable.ic_calendar_month
+                        leadingIconRes = R.drawable.ic_calendar_month,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        visualTransformation = DateVisualTransformation()
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
