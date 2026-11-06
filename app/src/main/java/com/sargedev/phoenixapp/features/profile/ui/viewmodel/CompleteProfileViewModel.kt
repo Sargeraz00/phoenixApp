@@ -21,6 +21,7 @@ data class CompleteProfileUiState(
     val birthDate: String = "",
     val preconditions: String = "",
     val planId: String = "",
+    val selectedPlanName: String = "",
     val isLoading: Boolean = false,
     val errorMessage: String? = null
 )
@@ -41,8 +42,8 @@ class CompleteProfileViewModel @Inject constructor(
     private val _eventChannel = Channel<CompleteProfileEvent>()
     val eventFlow = _eventChannel.receiveAsFlow()
 
-    fun onPlanChanged(value: String) {
-        state = state.copy(planId = value)
+    fun onPlanSelected(displayName: String, id: String) {
+        state = state.copy(selectedPlanName = displayName, planId = id)
     }
 
     fun onEmergencyContactChanged(value: String) {
@@ -66,19 +67,34 @@ class CompleteProfileViewModel @Inject constructor(
             state = state.copy(isLoading = true, errorMessage = null)
             val uid = userSession.userId
             Log.d("AuthDebug", "Submitting profile with UserSession UID: $uid")
+
+            val formattedPhone = if (state.phoneNumber.isNotBlank() && !state.phoneNumber.startsWith("+")) {
+                "+52${state.phoneNumber}"
+            } else {
+                state.phoneNumber
+            }
+
+            val formattedEmergency = if (state.emergencyContact.isNotBlank() && !state.emergencyContact.startsWith("+")) {
+                "+52${state.emergencyContact}"
+            } else {
+                state.emergencyContact
+            }
+
             val profile = Profile(
-                phoneNumber = state.phoneNumber,
-                emergencyContact = state.emergencyContact,
+                phoneNumber = formattedPhone,
+                emergencyContact = formattedEmergency,
                 birthdate = state.birthDate,
                 precondition = state.preconditions,
                 planId = state.planId,
                 userUid = uid
             )
             val result = completeProfileUseCase(profile)
-            state = state.copy(isLoading = false)
             result.onSuccess {
+                // Reset form state upon successful profile completion
+                state = CompleteProfileUiState()
                 _eventChannel.send(CompleteProfileEvent.NavigateToHome)
             }.onFailure { e ->
+                state = state.copy(isLoading = false)
                 val msg = e.localizedMessage ?: "Error al completar el perfil"
                 state = state.copy(errorMessage = msg)
                 _eventChannel.send(CompleteProfileEvent.ShowError(msg))

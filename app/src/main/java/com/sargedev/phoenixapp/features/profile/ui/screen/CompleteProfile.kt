@@ -28,7 +28,6 @@ import com.sargedev.phoenixapp.core.components.button.IconPosition
 import com.sargedev.phoenixapp.core.components.scaffold.AppScaffold
 import com.sargedev.phoenixapp.core.components.textfield.AppTextField
 import com.sargedev.phoenixapp.core.components.textfield.DateVisualTransformation
-import com.sargedev.phoenixapp.core.components.textfield.PhoneVisualTransformation
 import com.sargedev.phoenixapp.core.ui.theme.*
 import com.sargedev.phoenixapp.features.profile.ui.viewmodel.CompleteProfileEvent
 import com.sargedev.phoenixapp.features.profile.ui.viewmodel.CompleteProfileViewModel
@@ -114,7 +113,7 @@ fun CompleteProfile(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         AppTextField(
-                            value = state.planId,
+                            value = state.selectedPlanName,
                             onValueChange = {},
                             label = "Plan inicial",
                             placeholder = "Selecciona tu plan",
@@ -138,7 +137,7 @@ fun CompleteProfile(
                                 DropdownMenuItem(
                                     text = { Text(text = displayName, color = SoftPink) },
                                     onClick = {
-                                        viewModel.onPlanChanged(id)
+                                        viewModel.onPlanSelected(displayName, id)
                                         planExpanded = false
                                     }
                                 )
@@ -156,9 +155,8 @@ fun CompleteProfile(
                             viewModel.onEmergencyContactChanged(filtered)
                         },
                         label = "Contacto de emergencia",
-                        placeholder = "961 000 0000",
+                        placeholder = "+52 000 000 0000",
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                        visualTransformation = PhoneVisualTransformation(),
                         leadingIconRes = R.drawable.ic_call
                     )
 
@@ -172,9 +170,8 @@ fun CompleteProfile(
                             viewModel.onPhoneNumberChanged(filtered)
                         },
                         label = "Número telefónico",
-                        placeholder = "961 000 0000",
+                        placeholder = "+52 000 000 0000",
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                        visualTransformation = PhoneVisualTransformation(),
                         leadingIconRes = R.drawable.ic_call
                     )
 
