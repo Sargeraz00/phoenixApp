@@ -15,6 +15,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sargedev.phoenixapp.features.auth.ui.screen.LoginScreen
+import com.sargedev.phoenixapp.features.profile.ui.screen.CompleteProfile
 import com.sargedev.phoenixapp.features.splash.ui.screen.SplashScreen
 import com.sargedev.phoenixapp.core.ui.theme.BebasNeueFontFamily
 import com.sargedev.phoenixapp.core.ui.theme.PhoenixAppTheme
@@ -58,8 +59,8 @@ fun PhoenixAppApp() {
                 )
             }
             AppDestination.Form -> {
-                FormStubScreen(
-                    onBack = { currentDestination = AppDestination.Login },
+                CompleteProfile(
+                    onActivateSuccess = { currentDestination = AppDestination.Home },
                     modifier = Modifier.padding(innerPadding)
                 )
             }

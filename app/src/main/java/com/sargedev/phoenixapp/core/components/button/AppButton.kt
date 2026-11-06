@@ -7,10 +7,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -18,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -36,7 +39,7 @@ fun AppButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     textColor: Color = SoftPink,
-    icon: @Composable (() -> Unit)? = null,
+    iconRes: Int? = null,
     iconPosition: IconPosition = IconPosition.LEFT,
     gradientColors: List<Color> = listOf(ButtonGradientStart, ButtonGradientEnd)
 ) {
@@ -66,8 +69,13 @@ fun AppButton(
             horizontalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxWidth()
         ) {
-            if (icon != null && iconPosition == IconPosition.LEFT) {
-                icon()
+            if (iconRes != null && iconPosition == IconPosition.LEFT) {
+                Icon(
+                    painter = painterResource(id = iconRes),
+                    contentDescription = null,
+                    tint = textColor,
+                    modifier = Modifier.size(20.dp)
+                )
                 Spacer(modifier = Modifier.width(8.dp))
             }
 
@@ -79,9 +87,14 @@ fun AppButton(
                 )
             )
 
-            if (icon != null && iconPosition == IconPosition.RIGHT) {
+            if (iconRes != null && iconPosition == IconPosition.RIGHT) {
                 Spacer(modifier = Modifier.width(8.dp))
-                icon()
+                Icon(
+                    painter = painterResource(id = iconRes),
+                    contentDescription = null,
+                    tint = textColor,
+                    modifier = Modifier.size(20.dp)
+                )
             }
         }
     }

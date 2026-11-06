@@ -6,14 +6,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,7 +33,10 @@ fun AppTextField(
     label: String? = null,
     placeholder: String? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
+    leadingIconRes: Int? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
+    trailingIconRes: Int? = null,
+    iconTint: Color = SoftPink,
     enabled: Boolean = true,
     readOnly: Boolean = false,
     isError: Boolean = false,
@@ -40,7 +46,7 @@ fun AppTextField(
     minLines: Int = 1,
     onClick: (() -> Unit)? = null
 ) {
-    Column(modifier = modifier.fillMaxWidth()) {
+    Column(modifier = modifier) {
         if (!label.isNullOrEmpty()) {
             Text(
                 text = label,
@@ -67,8 +73,8 @@ fun AppTextField(
                 value = value,
                 onValueChange = onValueChange,
                 modifier = Modifier.fillMaxWidth(),
-                enabled = if (onClick != null) false else enabled,
-                readOnly = readOnly,
+                enabled = if (onClick != null) true else enabled,
+                readOnly = readOnly || (onClick != null),
                 textStyle = TextStyle(
                     color = SoftPink,
                     fontSize = 16.sp
@@ -82,8 +88,34 @@ fun AppTextField(
                         )
                     }
                 },
-                leadingIcon = leadingIcon,
-                trailingIcon = trailingIcon,
+                leadingIcon = when {
+                    leadingIcon != null -> leadingIcon
+                    leadingIconRes != null -> {
+                        {
+                            Icon(
+                                painter = painterResource(id = leadingIconRes),
+                                contentDescription = null,
+                                tint = iconTint,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
+                    else -> null
+                },
+                trailingIcon = when {
+                    trailingIcon != null -> trailingIcon
+                    trailingIconRes != null -> {
+                        {
+                            Icon(
+                                painter = painterResource(id = trailingIconRes),
+                                contentDescription = null,
+                                tint = iconTint,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
+                    else -> null
+                },
                 isError = isError,
                 keyboardOptions = keyboardOptions,
                 singleLine = singleLine,
