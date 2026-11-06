@@ -4,24 +4,24 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewScreenSizes
-import com.sargedev.phoenixapp.ui.theme.PhoenixAppTheme
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.sargedev.phoenixapp.features.auth.ui.screen.LoginScreen
+import com.sargedev.phoenixapp.features.profile.ui.screen.CompleteProfile
+import com.sargedev.phoenixapp.features.splash.ui.screen.SplashScreen
+import com.sargedev.phoenixapp.core.ui.theme.BebasNeueFontFamily
+import com.sargedev.phoenixapp.core.ui.theme.PhoenixAppTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,58 +34,136 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@PreviewScreenSizes
+sealed interface AppDestination {
+    data object Splash : AppDestination
+    data object Login : AppDestination
+    data object Form : AppDestination
+    data object Home : AppDestination
+}
+
 @Composable
 fun PhoenixAppApp() {
-    var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.HOME) }
+    var currentDestination by remember { mutableStateOf<AppDestination>(AppDestination.Splash) }
 
-    NavigationSuiteScaffold(
-        navigationSuiteItems = {
-            AppDestinations.entries.forEach {
-                item(
-                    icon = {
-                        Icon(
-                            painterResource(it.icon),
-                            contentDescription = it.label
-                        )
-                    },
-                    label = { Text(it.label) },
-                    selected = it == currentDestination,
-                    onClick = { currentDestination = it }
+    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+        when (currentDestination) {
+            AppDestination.Splash -> {
+                SplashScreen(
+                    onNavigateToLogin = { currentDestination = AppDestination.Login },
+                    modifier = Modifier.padding(innerPadding)
                 )
             }
-        }
-    ) {
-        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-            Greeting(
-                name = "Android",
-                modifier = Modifier.padding(innerPadding)
-            )
+            AppDestination.Login -> {
+                LoginScreen(
+                    onNavigateToForm = { currentDestination = AppDestination.Form },
+                    onNavigateToHome = { currentDestination = AppDestination.Home },
+                    modifier = Modifier.padding(innerPadding)
+                )
+            }
+            AppDestination.Form -> {
+                CompleteProfile(
+                    onActivateSuccess = { currentDestination = AppDestination.Home },
+                    modifier = Modifier.padding(innerPadding)
+                )
+            }
+            AppDestination.Home -> {
+                HomeStubScreen(
+                    onLogout = { currentDestination = AppDestination.Splash },
+                    modifier = Modifier.padding(innerPadding)
+                )
+            }
         }
     }
 }
 
-enum class AppDestinations(
-    val label: String,
-    val icon: Int,
+@Composable
+fun FormStubScreen(
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    HOME("Home", R.drawable.ic_home),
-    FAVORITES("Favorites", R.drawable.ic_favorite),
-    PROFILE("Profile", R.drawable.ic_account_box),
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
+    Box(
         modifier = modifier
-    )
+            .fillMaxSize()
+            .background(Color(0xFF1F0F0C)),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(24.dp)
+        ) {
+            Text(
+                text = "form",
+                style = TextStyle(
+                    fontFamily = BebasNeueFontFamily,
+                    fontSize = 48.sp,
+                    color = Color(0xFFFBDCD5),
+                    letterSpacing = 2.sp
+                )
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "Primera vez iniciando sesión (isFirstLogin: true)",
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    color = Color(0xFFFFB4A5)
+                )
+            )
+            Spacer(modifier = Modifier.height(32.dp))
+            Button(
+                onClick = onBack,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFFFB4A5),
+                    contentColor = Color(0xFF1F0F0C)
+                )
+            ) {
+                Text("Volver")
+            }
+        }
+    }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
-    PhoenixAppTheme {
-        Greeting("Android")
+fun HomeStubScreen(
+    onLogout: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color(0xFF1F0F0C)),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(24.dp)
+        ) {
+            Text(
+                text = "home",
+                style = TextStyle(
+                    fontFamily = BebasNeueFontFamily,
+                    fontSize = 48.sp,
+                    color = Color(0xFFFBDCD5),
+                    letterSpacing = 2.sp
+                )
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "Inicio de sesión existente (isFirstLogin: false)",
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    color = Color(0xFFFFB4A5)
+                )
+            )
+            Spacer(modifier = Modifier.height(32.dp))
+            Button(
+                onClick = onLogout,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFFFB4A5),
+                    contentColor = Color(0xFF1F0F0C)
+                )
+            ) {
+                Text("CERRAR SESIÓN")
+            }
+        }
     }
 }
