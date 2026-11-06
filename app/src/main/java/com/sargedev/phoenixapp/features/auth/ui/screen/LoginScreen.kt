@@ -12,6 +12,7 @@ import androidx.credentials.GetCredentialRequest
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.sargedev.phoenixapp.BuildConfig
 import com.sargedev.phoenixapp.features.auth.ui.viewmodel.LoginAction
 import com.sargedev.phoenixapp.features.auth.ui.viewmodel.LoginEvent
 import com.sargedev.phoenixapp.features.auth.ui.viewmodel.LoginViewModel
@@ -50,7 +51,7 @@ fun LoginScreen(
                         try {
                             val googleIdOption = GetGoogleIdOption.Builder()
                                 .setFilterByAuthorizedAccounts(false)
-                                .setServerClientId("17698673890-o4ru3a0nmcq7ebrloi6483an5272q0fj.apps.googleusercontent.com")
+                                .setServerClientId(BuildConfig.WEB_CLIENT_ID)
                                 .setAutoSelectEnabled(false)
                                 .build()
 
