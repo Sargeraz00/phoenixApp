@@ -9,7 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.sargedev.phoenixapp.core.session.UserSession
 import com.sargedev.phoenixapp.features.plans.domain.model.GymPlan
 import com.sargedev.phoenixapp.features.plans.domain.usecase.GetPlansUseCase
-import com.sargedev.phoenixapp.features.profile.domain.Profile
+import com.sargedev.phoenixapp.features.profile.domain.model.Profile
 import com.sargedev.phoenixapp.features.profile.domain.usecase.CompleteProfileUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel

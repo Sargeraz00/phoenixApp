@@ -74,6 +74,9 @@ dependencies {
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
+    // Coil Image Loading
+    implementation(libs.coil.compose)
+
     // Firebase MVP integration
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)

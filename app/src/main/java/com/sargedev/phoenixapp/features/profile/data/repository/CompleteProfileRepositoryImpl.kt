@@ -2,8 +2,8 @@ package com.sargedev.phoenixapp.features.profile.data.repository
 
 import com.sargedev.phoenixapp.features.profile.data.datasource.CompleteProfileRemoteDataSource
 import com.sargedev.phoenixapp.features.profile.data.mapper.toDto
-import com.sargedev.phoenixapp.features.profile.domain.CompleteProfileRepository
-import com.sargedev.phoenixapp.features.profile.domain.Profile
+import com.sargedev.phoenixapp.features.profile.domain.repository.CompleteProfileRepository
+import com.sargedev.phoenixapp.features.profile.domain.model.Profile
 import javax.inject.Inject
 
 class CompleteProfileRepositoryImpl @Inject constructor(
