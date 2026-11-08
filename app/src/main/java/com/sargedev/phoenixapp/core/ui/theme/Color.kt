@@ -30,6 +30,13 @@ val PlaceholderColor = Color(0x80E5BDB6)
 val ButtonGradientStart = Color(0xFFFF4B2B)
 val ButtonGradientEnd = Color(0xFFFF416C)
 
+// Dashboard & Navigation Colors
+val BottomNavBackground = Color(0xFF190A08)
+val HighlightOrange = Color(0xFFFF5637)
+val SelectedDarkRed = Color(0xFF590800)
+val CardDarkBackground = Color(0xFF281714)
+val TimerGreen = Color(0xFF79FF5B)
+
 // Legacy / Utility Colors
 val DarkBrown = Color(0xFF1F0F0C)
 val SoftPink = Color(0xFFFBDCD5)

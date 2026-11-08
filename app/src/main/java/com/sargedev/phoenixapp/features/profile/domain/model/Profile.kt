@@ -1,4 +1,4 @@
-package com.sargedev.phoenixapp.features.profile.domain
+package com.sargedev.phoenixapp.features.profile.domain.model
 
 data class Profile(
     val phoneNumber: String,

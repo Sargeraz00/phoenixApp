@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -42,10 +44,12 @@ fun AppScaffold(
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = PhoenixBackground,
+        contentWindowInsets = WindowInsets(0),
         topBar = {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .statusBarsPadding()
                     .height(64.dp)
                     .background(PhoenixBackground)
                     .drawBehind {
@@ -70,7 +74,7 @@ fun AppScaffold(
                             contentDescription = "Left Icon",
                             tint = SoftPink,
                             modifier = Modifier
-                                .size(24.dp)
+                                .size(22.dp)
                                 .then(
                                     if (onLeftClick != null) {
                                         Modifier.clickable(onClick = onLeftClick)
@@ -87,7 +91,7 @@ fun AppScaffold(
                     title,
                     style = TextStyle(
                         fontFamily = BebasNeueFontFamily,
-                        fontSize = 24.sp,
+                        fontSize = 20.sp,
                         color = PhoenixPeach,
                         letterSpacing = 1.5.sp
                     ),
@@ -105,7 +109,7 @@ fun AppScaffold(
                             contentDescription = "Right Icon",
                             tint = SoftPink,
                             modifier = Modifier
-                                .size(24.dp)
+                                .size(22.dp)
                                 .then(
                                     if (onRightClick != null) {
                                         Modifier.clickable(onClick = onRightClick)
