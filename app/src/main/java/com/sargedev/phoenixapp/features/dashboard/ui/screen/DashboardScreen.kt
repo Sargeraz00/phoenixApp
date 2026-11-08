@@ -51,7 +51,7 @@ fun DashboardScreen(
                 .fillMaxSize()
                 .background(PhoenixBackground)
                 .verticalScroll(scrollState)
-                .padding(start = 24.dp, top = 72.dp, end = 24.dp, bottom = 32.dp),
+                .padding(start = 24.dp, top = 120.dp, end = 24.dp, bottom = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Top User Info (Left-aligned, slightly down from top)
