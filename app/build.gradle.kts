@@ -35,9 +35,11 @@ android {
 
         val webClientId = localProperties.getProperty("WEB_CLIENT_ID") ?: ""
         val baseUrl = localProperties.getProperty("BASE_URL") ?: ""
+        val defaultGymId = localProperties.getProperty("DEFAULT_GYM_ID") ?: "gym-demo-001"
 
         buildConfigField("String", "WEB_CLIENT_ID", "\"${webClientId}\"")
         buildConfigField("String", "BASE_URL", "\"${baseUrl}\"")
+        buildConfigField("String", "DEFAULT_GYM_ID", "\"${defaultGymId}\"")
     }
 
     buildTypes {
@@ -93,6 +95,9 @@ dependencies {
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.kotlinx.serialization.json)
+
+    // QR Code Generation
+    implementation(libs.zxing.core)
 
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))

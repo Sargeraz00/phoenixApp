@@ -26,6 +26,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.sargedev.phoenixapp.R
 import com.sargedev.phoenixapp.core.components.scaffold.AppScaffold
 import com.sargedev.phoenixapp.core.ui.theme.*
+import com.sargedev.phoenixapp.features.dashboard.ui.util.QrCodeGenerator
 import com.sargedev.phoenixapp.features.dashboard.ui.viewmodel.DashboardViewModel
 
 @Composable
@@ -34,267 +35,303 @@ fun DashboardScreen(
     viewModel: DashboardViewModel = viewModel()
 ) {
     val state = viewModel.state
-    val profile = state.userProfile
+    val dashboard = state.userDashboard
+    val accessQr = state.accessQr
     val scrollState = rememberScrollState()
 
-    val photoUrl = profile?.photoUrl ?: FirebaseAuth.getInstance().currentUser?.photoUrl?.toString()
-    val fullName = profile?.fullname ?: FirebaseAuth.getInstance().currentUser?.displayName ?: "Usuario"
+    val qrBitmap = remember(accessQr?.qrContent) {
+        accessQr?.qrContent?.let { QrCodeGenerator.generateQrCode(it) }
+    }
+
+    val photoUrl = dashboard?.user?.photoUrl ?: FirebaseAuth.getInstance().currentUser?.photoUrl?.toString()
+    val fullName = dashboard?.user?.name ?: FirebaseAuth.getInstance().currentUser?.displayName ?: "Usuario"
     val firstName = fullName.split(" ").firstOrNull() ?: fullName
+
+    val planName = dashboard?.membership?.planName?.let {
+        "Plan ${it.lowercase().replaceFirstChar { char -> char.titlecase() }}"
+    } ?: "Plan Pro"
+
+    val membershipStatus = if (dashboard?.membership?.status.equals("ACTIVE", ignoreCase = true)) {
+        "Activa"
+    } else {
+        dashboard?.membership?.status ?: "Activa"
+    }
+
+    val streakDays = dashboard?.streak?.streakDays ?: 0
 
     AppScaffold(
         title = "PHOENIX ACADEMY",
         modifier = modifier,
         leftIconRes = R.drawable.ic_dumbbell
     ) { innerModifier ->
-        Column(
-            modifier = innerModifier
-                .fillMaxSize()
-                .background(PhoenixBackground)
-                .verticalScroll(scrollState)
-                .padding(start = 24.dp, top = 120.dp, end = 24.dp, bottom = 32.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+        Box(
+            modifier = innerModifier.fillMaxSize()
         ) {
-            // Top User Info (Left-aligned, slightly down from top)
-            Row(
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .fillMaxSize()
+                    .background(PhoenixBackground)
+                    .verticalScroll(scrollState)
+                    .padding(start = 24.dp, top = 120.dp, end = 24.dp, bottom = 32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Profile Avatar from Profile API / Firebase Auth
-                Box(
+                // Top User Info (Left-aligned, slightly down from top)
+                Row(
                     modifier = Modifier
-                        .size(52.dp)
-                        .clip(CircleShape)
-                        .background(PhoenixCardBorder),
-                    contentAlignment = Alignment.Center
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    if (!photoUrl.isNullOrEmpty()) {
-                        AsyncImage(
-                            model = photoUrl,
-                            contentDescription = "User Avatar",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
+                    // Profile Avatar
+                    Box(
+                        modifier = Modifier
+                            .size(52.dp)
+                            .clip(CircleShape)
+                            .background(PhoenixCardBorder),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (!photoUrl.isNullOrEmpty()) {
+                            AsyncImage(
+                                model = photoUrl,
+                                contentDescription = "User Avatar",
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
+                            )
+                        } else {
+                            Image(
+                                painter = painterResource(id = R.drawable.phoenix),
+                                contentDescription = "User Avatar",
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    Column {
+                        Text(
+                            text = "ACCESS STATUS",
+                            style = TextStyle(
+                                color = SoftPink,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 1.sp
+                            )
                         )
-                    } else {
-                        Image(
-                            painter = painterResource(id = R.drawable.phoenix),
-                            contentDescription = "User Avatar",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "HOLA, ${firstName.uppercase()}",
+                            style = TextStyle(
+                                fontFamily = BebasNeueFontFamily,
+                                color = SoftPink,
+                                fontSize = 26.sp,
+                                letterSpacing = 1.5.sp
+                            )
                         )
                     }
                 }
 
-                Spacer(modifier = Modifier.width(16.dp))
+                Spacer(modifier = Modifier.height(28.dp))
 
-                Column {
-                    Text(
-                        text = "ACCESS STATUS",
-                        style = TextStyle(
-                            color = SoftPink,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.sp
-                        )
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "HOLA, ${firstName.uppercase()}",
-                        style = TextStyle(
-                            fontFamily = BebasNeueFontFamily,
-                            color = SoftPink,
-                            fontSize = 26.sp,
-                            letterSpacing = 1.5.sp
-                        )
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(28.dp))
-
-            // QR Code Section
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp),
-                contentAlignment = Alignment.Center
-            ) {
+                // QR Code Section
                 Box(
                     modifier = Modifier
-                    .size(220.dp)
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(Color.White)
-                    .padding(16.dp),
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp),
                     contentAlignment = Alignment.Center
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_qr_code),
-                        contentDescription = "Access QR Code",
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(14.dp))
-
-            // Refresh in legend with ic_clock
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_clock),
-                    contentDescription = "Clock",
-                    tint = TimerGreen,
-                    modifier = Modifier.size(16.dp)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = "Refresh in",
-                    style = TextStyle(
-                        color = PhoenixTextSub,
-                        fontSize = 14.sp
-                    )
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = "2H 59M",
-                    style = TextStyle(
-                        color = TimerGreen,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                )
-            }
-
-            Spacer(modifier = Modifier.height(36.dp))
-
-            // 2 Cards Below
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                // Card 1: Membership (Status indicator in top right corner)
-                Card(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(130.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = CardDarkBackground),
-                    border = BorderStroke(1.dp, PhoenixCardBorder)
                 ) {
                     Box(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp)
+                            .size(220.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(Color.White)
+                            .padding(16.dp),
+                        contentAlignment = Alignment.Center
                     ) {
-                        // Top Right Status Indicator
-                        Row(
-                            modifier = Modifier.align(Alignment.TopEnd),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(7.dp)
-                                    .clip(CircleShape)
-                                    .background(TimerGreen)
+                        if (qrBitmap != null) {
+                            Image(
+                                bitmap = qrBitmap,
+                                contentDescription = "Access QR Code",
+                                modifier = Modifier.fillMaxSize()
                             )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = "Activa",
-                                style = TextStyle(
-                                    color = TimerGreen,
-                                    fontSize = 11.sp
-                                )
+                        } else {
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_qr_code),
+                                contentDescription = "Access QR Code Placeholder",
+                                modifier = Modifier.fillMaxSize()
                             )
                         }
+                    }
+                }
 
-                        // Content
+                Spacer(modifier = Modifier.height(14.dp))
+
+                // Refresh in legend with ic_clock
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_clock),
+                        contentDescription = "Clock",
+                        tint = TimerGreen,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "Refresh in",
+                        style = TextStyle(
+                            color = PhoenixTextSub,
+                            fontSize = 14.sp
+                        )
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = state.remainingTimeText,
+                        style = TextStyle(
+                            color = TimerGreen,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(36.dp))
+
+                // 2 Cards Below
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    // Card 1: Membership (Status indicator in top right corner)
+                    Card(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(130.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = CardDarkBackground),
+                        border = BorderStroke(1.dp, PhoenixCardBorder)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(16.dp)
+                        ) {
+                            // Top Right Status Indicator
+                            Row(
+                                modifier = Modifier.align(Alignment.TopEnd),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(7.dp)
+                                        .clip(CircleShape)
+                                        .background(TimerGreen)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = membershipStatus,
+                                    style = TextStyle(
+                                        color = TimerGreen,
+                                        fontSize = 11.sp
+                                    )
+                                )
+                            }
+
+                            // Content
+                            Column(
+                                modifier = Modifier.fillMaxSize(),
+                                verticalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Column {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ic_fast),
+                                        contentDescription = "Membership",
+                                        tint = SoftPink,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        text = "Membresía",
+                                        style = TextStyle(
+                                            color = PhoenixTextSub,
+                                            fontSize = 13.sp
+                                        )
+                                    )
+                                }
+                                Text(
+                                    text = planName,
+                                    style = TextStyle(
+                                        color = SoftPink,
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                )
+                            }
+                        }
+                    }
+
+                    // Card 2: Streak
+                    Card(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(130.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = CardDarkBackground),
+                        border = BorderStroke(1.dp, PhoenixCardBorder)
+                    ) {
                         Column(
-                            modifier = Modifier.fillMaxSize(),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(16.dp),
                             verticalArrangement = Arrangement.SpaceBetween
                         ) {
                             Column {
                                 Icon(
-                                    painter = painterResource(id = R.drawable.ic_fast),
-                                    contentDescription = "Membership",
+                                    painter = painterResource(id = R.drawable.icon_streak),
+                                    contentDescription = "Streak",
                                     tint = SoftPink,
                                     modifier = Modifier.size(20.dp)
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
-                                    text = "Membresía",
+                                    text = "Racha",
                                     style = TextStyle(
                                         color = PhoenixTextSub,
                                         fontSize = 13.sp
                                     )
                                 )
                             }
-                            Text(
-                                text = "Plan Pro",
-                                style = TextStyle(
-                                    color = SoftPink,
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.Bold
+
+                            Column {
+                                Text(
+                                    text = "$streakDays días",
+                                    style = TextStyle(
+                                        color = PhoenixTextSub,
+                                        fontSize = 22.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
                                 )
-                            )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = "¡Vas con todo!",
+                                    style = TextStyle(
+                                        color = PhoenixTextSub,
+                                        fontSize = 12.sp
+                                    )
+                                )
+                            }
                         }
                     }
                 }
+            }
 
-                // Card 2: Streak
-                Card(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(130.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = CardDarkBackground),
-                    border = BorderStroke(1.dp, PhoenixCardBorder)
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-                        verticalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column {
-                            Icon(
-                                painter = painterResource(id = R.drawable.icon_streak),
-                                contentDescription = "Streak",
-                                tint = SoftPink,
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = "Racha",
-                                style = TextStyle(
-                                    color = PhoenixTextSub,
-                                    fontSize = 13.sp
-                                )
-                            )
-                        }
-
-                        Column {
-                            Text(
-                                text = "5 días",
-                                style = TextStyle(
-                                    color = PhoenixTextSub,
-                                    fontSize = 22.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = "¡Vas con todo!",
-                                style = TextStyle(
-                                    color = PhoenixTextSub,
-                                    fontSize = 12.sp
-                                )
-                            )
-                        }
-                    }
-                }
+            if (state.isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center),
+                    color = SoftPink
+                )
             }
         }
     }
