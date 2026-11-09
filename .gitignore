@@ -20,9 +20,10 @@ captures/
 .externalNativeBuild/
 .cxx/
 
-# --- Configuración local de máquina ---
+# --- Configuración local de máquina y documentación interna ---
 local.properties
 .junie/
+docs/
 
 # --- Archivos sensibles / secretos ---
 *.jks
