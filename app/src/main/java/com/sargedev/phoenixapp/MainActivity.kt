@@ -4,17 +4,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.sargedev.phoenixapp.core.ui.theme.BebasNeueFontFamily
 import com.sargedev.phoenixapp.core.components.navigation.AppBottomNavBar
 import com.sargedev.phoenixapp.core.components.navigation.NavigationTab
 import com.sargedev.phoenixapp.features.auth.ui.screen.LoginScreen
@@ -76,7 +69,6 @@ fun PhoenixAppApp() {
             }
             AppDestination.Home -> {
                 MainHomeScreen(
-                    onLogout = { currentDestination = AppDestination.Splash },
                     modifier = Modifier.padding(innerPadding)
                 )
             }
@@ -86,7 +78,6 @@ fun PhoenixAppApp() {
 
 @Composable
 fun MainHomeScreen(
-    onLogout: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var selectedTab by remember { mutableStateOf(NavigationTab.DASHBOARD) }
