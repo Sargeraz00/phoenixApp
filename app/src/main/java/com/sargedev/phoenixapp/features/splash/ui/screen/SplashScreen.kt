@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun SplashScreen(
@@ -11,7 +12,7 @@ fun SplashScreen(
     modifier: Modifier = Modifier
 ) {
     LaunchedEffect(key1 = true) {
-        delay(2500)
+        delay(2500.milliseconds)
         onNavigateToLogin()
     }
 
