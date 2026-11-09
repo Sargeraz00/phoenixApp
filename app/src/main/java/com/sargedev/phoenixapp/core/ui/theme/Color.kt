@@ -38,6 +38,12 @@ val CardDarkBackground = Color(0xFF281714)
 val TimerGreen = Color(0xFF79FF5B)
 val StatusActiveBackground = Color(0xFF273424)
 val StatusActiveBorder = Color(0xFF3f7134)
+val RoutineCardBackground = Color(0xB21E1E1E)
+val StatusActiveLightBg = Color(0xFFD7FFC5)
+val StatusActiveLightText = Color(0xFF053900)
+val ProgramadoBg = Color(0xFF43302C)
+val ProgramadoBorder = Color(0xFF5C403A)
+val FilterGreen = Color(0xFFD7FFC5)
 
 // Modal Color Scheme
 val ModalSuccessGreen = Color(0xFF2FF801)
