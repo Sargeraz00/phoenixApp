@@ -1,12 +1,25 @@
+import org.jetbrains.kotlin.gradle.utils.loadPropertyFromResources
+import java.util.Properties
+
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()){
+    localProperties.load(localPropertiesFile.inputStream())
+}
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.dagger.hilt.android)
+    alias(libs.plugins.ksp)
 }
 
 android {
     namespace = "com.sargedev.phoenixapp"
     compileSdk {
-        version = release(36) {
+        version = release(37) {
             minorApiLevel = 1
         }
     }
@@ -14,12 +27,19 @@ android {
     defaultConfig {
         applicationId = "com.sargedev.phoenixapp"
         minSdk = 29
-        //noinspection OldTargetApi
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        val webClientId = localProperties.getProperty("WEB_CLIENT_ID") ?: ""
+        val baseUrl = localProperties.getProperty("BASE_URL") ?: ""
+        val defaultGymId = localProperties.getProperty("DEFAULT_GYM_ID") ?: "gym-demo-001"
+
+        buildConfigField("String", "WEB_CLIENT_ID", "\"${webClientId}\"")
+        buildConfigField("String", "BASE_URL", "\"${baseUrl}\"")
+        buildConfigField("String", "DEFAULT_GYM_ID", "\"${defaultGymId}\"")
     }
 
     buildTypes {
@@ -35,6 +55,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -51,32 +72,38 @@ dependencies {
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
 
-    // Navegación en Compose
-    implementation(libs.androidx.navigation.compose)
+    // Hilt Dependency Injection
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+    implementation(libs.androidx.hilt.navigation.compose)
 
-    // Autenticación (Google / Credential Manager)
+    // Coil Image Loading
+    implementation(libs.coil.compose)
+
+    // Firebase MVP integration
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.analytics)
+
+    // Credential Manager & Google ID for native Google OAuth popup
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
-    implementation(libs.google.id)
+    implementation(libs.googleid)
 
-    // Inyección de Dependencias (Koin)
-    implementation(libs.koin.android)
-    implementation(libs.koin.androidx.compose)
+    // Ktor client & Serialization for backend communication
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.cio)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.kotlinx.serialization.json)
 
-    // Persistencia Local (SQLDelight)
-    implementation(libs.sqldelight.android.driver)
-    implementation(libs.sqldelight.coroutines.extensions)
+    // QR Code Generation
+    implementation(libs.zxing.core)
 
-    // Red y HTTP (Retrofit)
-    implementation(libs.retrofit)
-    implementation(libs.retrofit.converter.gson)
-
-    // Carga de Imágenes (Coil 3)
-    implementation(libs.coil.compose)
-    implementation(libs.coil.network.okhttp)
-
-    // Pruebas (Testing)
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.junit)
