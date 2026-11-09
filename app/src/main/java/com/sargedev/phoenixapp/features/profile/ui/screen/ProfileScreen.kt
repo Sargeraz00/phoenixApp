@@ -176,8 +176,8 @@ fun ProfileScreen(
                         Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(50.dp))
-                                .background(StatusBackground)
-                                .border(1.dp, PhoenixCardBorder, RoundedCornerShape(50.dp))
+                                .background(StatusActiveBackground)
+                                .border(1.dp, StatusActiveBorder, RoundedCornerShape(50.dp))
                                 .padding(horizontal = 16.dp, vertical = 6.dp),
                             contentAlignment = Alignment.Center
                         ) {

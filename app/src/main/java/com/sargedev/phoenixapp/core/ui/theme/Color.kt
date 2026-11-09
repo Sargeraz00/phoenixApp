@@ -36,7 +36,8 @@ val HighlightOrange = Color(0xFFFF5637)
 val SelectedDarkRed = Color(0xFF590800)
 val CardDarkBackground = Color(0xFF281714)
 val TimerGreen = Color(0xFF79FF5B)
-val StatusBackground = Color(0xFF273424)
+val StatusActiveBackground = Color(0xFF273424)
+val StatusActiveBorder = Color(0xFF3f7134)
 
 // Legacy / Utility Colors
 val DarkBrown = Color(0xFF1F0F0C)
