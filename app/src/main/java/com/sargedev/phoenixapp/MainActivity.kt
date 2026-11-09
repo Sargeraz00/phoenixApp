@@ -4,11 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
@@ -22,7 +20,6 @@ import com.sargedev.phoenixapp.features.dashboard.ui.screen.DashboardScreen
 import com.sargedev.phoenixapp.features.profile.ui.screen.CompleteProfile
 import com.sargedev.phoenixapp.features.profile.ui.screen.ProfileScreen
 import com.sargedev.phoenixapp.features.splash.ui.screen.SplashScreen
-import com.sargedev.phoenixapp.core.ui.theme.BebasNeueFontFamily
 import com.sargedev.phoenixapp.core.ui.theme.PhoenixAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 

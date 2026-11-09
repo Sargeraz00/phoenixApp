@@ -39,6 +39,18 @@ val TimerGreen = Color(0xFF79FF5B)
 val StatusActiveBackground = Color(0xFF273424)
 val StatusActiveBorder = Color(0xFF3f7134)
 
+// Modal Color Scheme
+val ModalSuccessGreen = Color(0xFF2FF801)
+val ModalProgressOrange = Color(0xFFFF5637)
+val ModalErrorRed = Color(0xFFFF5637)
+val ModalErrorBackground = Color(0xFF5D3736)
+val ModalProgressBackground = Color(0xFF382622)
+val ModalProgressBorder = Color(0xFF5C403A)
+val ModalDefaultBackground = Color(0xFF1E1E1E)
+val ModalDefaultBorder = Color(0xFF2C2C2C)
+val ModalTextDescription = Color(0xFFE5BDB6)
+val ModalErrorTitleText = Color(0xFFFBDCD5)
+
 // Legacy / Utility Colors
 val DarkBrown = Color(0xFF1F0F0C)
 val SoftPink = Color(0xFFFBDCD5)
