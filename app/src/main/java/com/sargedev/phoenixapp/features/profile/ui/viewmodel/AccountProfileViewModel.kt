@@ -42,8 +42,17 @@ class AccountProfileViewModel @Inject constructor(
     }
 
     fun fetchProfileData() {
-        val uid = userSession.userId?.takeIf { it.isNotBlank() } ?: "111926389603027917107"
-        val gymId = userSession.gymId?.takeIf { it.isNotBlank() } ?: "gym_demo_001"
+        val uid = userSession.userId
+        val gymId = userSession.gymId
+
+        if (uid.isNullOrBlank() || gymId.isNullOrBlank()) {
+            state = state.copy(
+                isLoading = false,
+                errorMessage = "Sesión no válida o incompleta. Por favor, inicia sesión de nuevo."
+            )
+            Log.e("AuthDebug", "AccountProfileViewModel: Aborted fetch. Missing credentials -> uid: $uid, gymId: $gymId")
+            return
+        }
 
         viewModelScope.launch {
             state = state.copy(isLoading = true, errorMessage = null)
